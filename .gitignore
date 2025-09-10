@@ -1,0 +1,5 @@
+# dotenv
+.env
+.env.*
+*.env
+!.env.example   # opcional: mantém um exemplo
