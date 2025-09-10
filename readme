@@ -1,0 +1,3 @@
+ex:
+
+python analisador.py redacao.txt --tema "Invisibilidade e registro civil: garantia de acesso à cidadania no Brasil"
