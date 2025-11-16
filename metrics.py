@@ -92,8 +92,10 @@ def gerar_metricas_por_prompt(file_name_input, file_name_output):
     print(f"Métricas calculadas e salvas em: {file_name_output}")
     return final_results_df
 
-input_file = 'essay-br-100-with-ia_predicted_v2_with_real.csv'
-output_file = 'metricas.csv'
+file = 'essay-br-100-with-ia_prompt3_cot_predicted_with_real'
+
+input_file = '{}.csv'.format(file)
+output_file = '{}_metricas.csv'.format(file)
 
 if __name__ == '__main__':
     gerar_metricas_por_prompt(input_file, output_file)
