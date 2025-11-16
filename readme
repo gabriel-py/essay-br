@@ -1,3 +1,75 @@
-ex:
+# 📝 Avaliação Automática de Redações do ENEM utilizando LLM Gemini
 
-python analisador.py redacao.txt --tema "Invisibilidade e registro civil: garantia de acesso à cidadania no Brasil"
+📍 **Disciplina:** Resolução de Problemas II — USP (EACH-USP)
+
+---
+
+## 🎯 Objetivo do Projeto
+
+O ENEM corrige milhões de redações todos os anos, um processo:
+
+- caro e demorado
+- com risco de inconsistências entre avaliadores humanos
+
+Este projeto investiga o uso do modelo **Gemini** (Google) para **correção automática de redações (CAR)**, analisando:
+
+✔ Acurácia das notas atribuídas
+✔ Concordância com corretores humanos
+✔ Impacto da engenharia de prompts no resultado
+✔ Potencial uso educacional e avaliativo
+
+Dataset utilizado: **Essay-BR** — redações reais com notas oficiais do ENEM.
+
+---
+
+## 🧠 Teste de Estratégias de Prompt
+
+Foram avaliados três tipos de prompts:
+
+| Prompt | Técnica | Descrição |
+|--------|--------|-----------|
+| 1 | Zero-Shot | Apenas instruções gerais |
+| 2 | Few-Shot | Inclui exemplos completos de correção |
+| 3 | CoT (Chain-of-Thought) | Induz raciocínio passo a passo |
+
+📌 Todos foram testados nas **100 primeiras redações** do Essay-BR → **42 temas diferentes**
+
+---
+
+## 📐 Métricas Utilizadas
+
+- **MAE (Mean Absolute Error)** — erro absoluto médio
+→ Quanto **menor**, melhor
+
+- **QWK (Quadratic Weighted Kappa)** — concordância com humano
+→ Quanto **maior**, melhor
+→ *Acima de 0.90 já é nível equivalente a avaliadores humanos*
+
+---
+
+## 📈 Resultados Gerais
+
+| Prompt | MAE ↓ | QWK ↑ | Conclusão |
+|--------|------|------|-----------|
+| Prompt 1 — Zero-Shot | **52,8** | **0,876** | Modelo sem guia — baixo desempenho |
+| Prompt 2 — Few-Shot | **36,8** | **0,9005** | Ganho expressivo com exemplos |
+| Prompt 3 — CoT | **32,8** | **0,9415** | Melhor — raciocínio mais próximo do humano |
+
+📌 O **CoT** apresentou o **melhor resultado**, com maior precisão e consistência entre os temas.
+
+📌 Few-Shot também melhora muito a qualidade final da correção.
+
+📌 Zero-Shot não é adequado para avaliações complexas como o ENEM.
+
+---
+
+## 🛠 Como Reproduzir o Experimento
+
+📌 Pré-requisitos
+
+- Python 3.10+
+- `pip install -r requirements.txt`
+- Variável de ambiente configurada:
+
+```sh
+export GEMINI_API_KEY="SUA_CHAVE_AQUI"
