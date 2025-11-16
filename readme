@@ -1,75 +1,67 @@
-# 📝 Avaliação Automática de Redações do ENEM utilizando LLM Gemini
+## 🤖 Avaliação de LLMs para Correção Automática de Redações ENEM (Gemini & Prompt Engineering)
 
-📍 **Disciplina:** Resolução de Problemas II — USP (EACH-USP)
+Este projeto foi desenvolvido no contexto da disciplina **Resolução de Problemas II** da EACH-USP e tem como objetivo investigar o uso de **Modelos de Linguagem de Grande Porte (LLMs)**, em especial o **Gemini da Google**, para a correção automática de redações do ENEM.
 
----
+### 🎯 Objetivo e Motivação
 
-## 🎯 Objetivo do Projeto
+O processo manual de correção de redações é caro, demorado e sujeito a divergências. A motivação central é avaliar se modelos de IA podem oferecer uma alternativa mais **rápida, escalável e consistente**.
 
-O ENEM corrige milhões de redações todos os anos, um processo:
-
-- caro e demorado
-- com risco de inconsistências entre avaliadores humanos
-
-Este projeto investiga o uso do modelo **Gemini** (Google) para **correção automática de redações (CAR)**, analisando:
-
-✔ Acurácia das notas atribuídas
-✔ Concordância com corretores humanos
-✔ Impacto da engenharia de prompts no resultado
-✔ Potencial uso educacional e avaliativo
-
-Dataset utilizado: **Essay-BR** — redações reais com notas oficiais do ENEM.
+O foco específico deste experimento foi avaliar como diferentes técnicas de **Engenharia de Prompt** influenciam a qualidade das correções produzidas pelo Gemini, utilizando o **dataset Essay-BR** (redações reais com notas por competência).
 
 ---
 
-## 🧠 Teste de Estratégias de Prompt
+### ⚙️ Experimento: Variações de Prompting
 
-Foram avaliados três tipos de prompts:
+Foram construídas e testadas três variações de prompt base para corrigir as 100 primeiras redações do *Essay-BR*, analisando seu impacto na acurácia e concordância com corretores humanos.
 
-| Prompt | Técnica | Descrição |
-|--------|--------|-----------|
-| 1 | Zero-Shot | Apenas instruções gerais |
-| 2 | Few-Shot | Inclui exemplos completos de correção |
-| 3 | CoT (Chain-of-Thought) | Induz raciocínio passo a passo |
-
-📌 Todos foram testados nas **100 primeiras redações** do Essay-BR → **42 temas diferentes**
+| Variação de Prompt | Técnica | Descrição |
+| :--- | :--- | :--- |
+| **Prompt 1** | Zero-shot | Apenas instruções diretas, sem exemplos ou raciocínio aprofundado. |
+| **Prompt 2** | Few-shot | Fornece **exemplos** completos de correções, orientando o padrão de saída. |
+| **Prompt 3** | Chain-of-Thought (CoT) | Orienta o modelo a seguir um **raciocínio avaliativo detalhado e estruturado** (Competências ENEM) antes de emitir a nota. |
 
 ---
 
-## 📐 Métricas Utilizadas
+### 💻 Pipeline Experimental
 
-- **MAE (Mean Absolute Error)** — erro absoluto médio
-→ Quanto **menor**, melhor
+O processo experimental está organizado em uma pipeline de três scripts principais:
 
-- **QWK (Quadratic Weighted Kappa)** — concordância com humano
-→ Quanto **maior**, melhor
-→ *Acima de 0.90 já é nível equivalente a avaliadores humanos*
+| Script | Função | Exemplo de Uso |
+| :--- | :--- | :--- |
+| `analisador.py` | Envia as redações ao Gemini, montando o prompt final e gravando o resultado bruto (`resultado_ia` em JSON). | `python analisador.py --in essay-br.csv --prompt-file prompt1.txt --n 100` |
+| `gemini_normalizer.py` | Faz o *parse* do resultado bruto da IA (JSON) e transforma as notas previstas e as notas reais em colunas numéricas organizadas. | Recebe o CSV gerado pelo `analisador.py`. |
+| `metrics.py` | Calcula as métricas de desempenho (**MAE** e **QWK**) de forma agregada e por tema de redação. | Recebe o CSV normalizado. |
 
----
-
-## 📈 Resultados Gerais
-
-| Prompt | MAE ↓ | QWK ↑ | Conclusão |
-|--------|------|------|-----------|
-| Prompt 1 — Zero-Shot | **52,8** | **0,876** | Modelo sem guia — baixo desempenho |
-| Prompt 2 — Few-Shot | **36,8** | **0,9005** | Ganho expressivo com exemplos |
-| Prompt 3 — CoT | **32,8** | **0,9415** | Melhor — raciocínio mais próximo do humano |
-
-📌 O **CoT** apresentou o **melhor resultado**, com maior precisão e consistência entre os temas.
-
-📌 Few-Shot também melhora muito a qualidade final da correção.
-
-📌 Zero-Shot não é adequado para avaliações complexas como o ENEM.
+> 🔑 **Pré-requisito:** A variável de ambiente `GEMINI_API_KEY` deve estar definida com uma chave de acesso válida.
 
 ---
 
-## 🛠 Como Reproduzir o Experimento
+### 📊 Resultados e Conclusões
 
-📌 Pré-requisitos
+Os resultados consolidados mostram o impacto direto da engenharia de prompt na performance do modelo:
 
-- Python 3.10+
-- `pip install -r requirements.txt`
-- Variável de ambiente configurada:
+#### 📈 Métricas Consolidadas
 
-```sh
-export GEMINI_API_KEY="SUA_CHAVE_AQUI"
+| Técnica de Prompt | MAE (Mean Absolute Error) | QWK (Quadratic Weighted Kappa) |
+| :--- | :--- | :--- |
+| **1. Zero-shot** | 52,8 | 0,876 |
+| **2. Few-shot** | 36,8 | 0,9005 |
+| **3. Chain-of-Thought (CoT)** | **32,8 (Menor Erro)** | **0,9415 (Maior Concordância)** |
+
+#### ✅ Conclusões
+
+1.  **Prompts Simples** (`Zero-shot`) não são suficientes para atingir alta acurácia em tarefas complexas.
+2.  A técnica **Few-shot** melhora a performance ao fornecer exemplos concretos, reduzindo o erro e aumentando a concordância com avaliadores humanos.
+3.  A técnica **Chain-of-Thought (CoT)** alcançou o melhor desempenho, com um QWK compatível com o nível de concordância entre corretores humanos especializados. Isso sugere que instruir o modelo a raciocinar de forma estruturada torna a avaliação mais estável e alinhada aos critérios do ENEM.
+
+> **Observação de Custos:** Prompts mais complexos (Few-shot e CoT) tendem a consumir mais tokens, aumentando o custo de uso do modelo em larga escala. É necessário um equilíbrio entre qualidade e viabilidade econômica.
+
+---
+
+### 🚀 Trabalhos Futuros
+
+* **Testar Prompts Híbridos:** Combinar as técnicas few-shot e CoT para buscar resultados ainda mais assertivos.
+* **Expansão da Análise:** Estender os experimentos para um conjunto maior e mais diversificado de redações.
+* **Análise Fina:** Aprofundar as análises por competência para identificar pontos fortes e fracos do modelo.
+
+O projeto demonstra que a engenharia de prompt é um **componente essencial** para transformar um LLM genérico (como o Gemini) em uma ferramenta específica e confiável para avaliação educacional.
